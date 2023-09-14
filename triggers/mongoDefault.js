@@ -39,3 +39,4 @@ exports = async function (changeEvent) {
     console.log("error performing mongodb write: ", err.message);
   }
 };
+// create_embedding_trigger
