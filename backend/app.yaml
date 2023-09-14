@@ -1,2 +1,2 @@
-runtime: nodejs18
-service: "products-api"
+runtime: nodejs20
+service: "faq-app-1"
