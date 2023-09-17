@@ -3,15 +3,58 @@ import { db } from "../db/index.mjs";
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { parameterMissingResponse } from "../utils/index.js";
+import { getEmbeddings } from "../helpers/getEmbeddings.js";
+import { cleanText } from "../helpers/textCleaning.js";
 
 const collection = "faqs";
 const faqsCollection = db.collection<IFaq>(collection);
 
 const getAllFaqs = async (req: Request, res: Response) => {
+  const { search } = req?.query;
+  const queryText: any = search || ""; // empty string to fetch all data
+
+  let query;
   try {
+    if (queryText) {
+      const { vector } = await getEmbeddings(queryText);
+
+      const documents = await faqsCollection
+        .aggregate([
+          {
+            $search: {
+              index: "default", // this is name of my index
+              knnBeta: {
+                vector,
+                path: "faq_embedding",
+                k: 15,
+              },
+              scoreDetails: true, //this is different
+            },
+          },
+          {
+            $project: {
+              faq_embedding: 0,
+              score: { $meta: "searchScore" }, // and this is different
+              scoreDetails: { $meta: "searchScoreDetails" },
+            },
+            // $limit: 20, //this is not working
+          },
+        ])
+        .toArray();
+      console.log("🚀 ~ file: faq.ts:35 ~ getAllFaqs ~ documents:", documents);
+
+      res.status(200).send({ message: "testing search", documents });
+      return;
+    } else {
+      query = {};
+    }
+
+    console.log("normal");
+
     const data = await faqsCollection
       .find<IFaq>({})
       .sort({ _id: -1 })
+      .project({ faq_embedding: 0 })
       .toArray();
 
     if (!data.length) {
@@ -47,7 +90,7 @@ const getFaq = async (req: Request, res: Response) => {
 };
 
 const addFaq = async (req: Request, res: Response) => {
-  const { question, answer, topic } = req.body;
+  let { question, answer, topic } = req.body;
 
   // Validation
   if (
@@ -61,6 +104,11 @@ const addFaq = async (req: Request, res: Response) => {
     res.status(403).send(parameterMissingResponse);
     return;
   }
+
+  // cleaning of text // needs better approach
+  question = cleanText(question);
+  answer = cleanText(answer);
+  topic = cleanText(topic);
 
   try {
     const doc = {
@@ -82,46 +130,45 @@ const addFaq = async (req: Request, res: Response) => {
 };
 
 const updateFaq = async (req: Request, res: Response) => {
-  const { id, answer, question, topic, name, description } = req.body;
-  const price = Number(req.body.price);
+  const { question, answer, topic } = req.body;
+  const { id } = req.params;
 
   // Validation
   if (!ObjectId.isValid(id)) {
-    res.status(403).send({ message: "Incorrect product id" });
+    res.status(403).send({ message: "Incorrect FAQ id" });
     return;
   }
-  if ((!name && !price && !description) || !id) {
+  if ((!question && !topic && !answer) || !id) {
     res.status(403).send(parameterMissingResponse);
     return;
   }
-
-  if (price && isNaN(price)) {
-    res.status(403).send("Price missing");
+  if (question && typeof question !== "string") {
+    res.status(403).send("question missing");
     return;
   }
-  if (name && typeof name !== "string") {
-    res.status(403).send("NAME  missing");
+  if (answer && typeof answer !== "string") {
+    res.status(403).send("answer missing");
     return;
   }
-  if (description && typeof description !== "string") {
-    res.status(403).send("description missing");
+  if (topic && typeof topic !== "string") {
+    res.status(403).send("topic missing");
     return;
   }
 
-  let product: Partial<IFaq> = {};
+  let faq: Partial<IFaq> = {};
 
-  answer && (product.answer = answer);
-  question && (product.question = question);
-  topic && (product.topic = topic);
+  answer && (faq.answer = answer);
+  question && (faq.question = question);
+  topic && (faq.topic = topic);
 
   try {
     const filter = { _id: new ObjectId(id) };
-    const updateDoc = { $set: product };
+    const updateDoc = { $set: faq };
     const data = await faqsCollection.updateOne(filter, updateDoc);
 
-    if (!data.matchedCount) throw Error("Product Not Found!");
+    if (!data.matchedCount) throw Error("FAQ Not Found!");
 
-    res.status(201).send({ message: "Product updated" });
+    res.status(201).send({ message: "FAQ updated" });
   } catch (err: any) {
     res.status(500).send({ message: err.message || "Unknown Error" });
   }
@@ -131,7 +178,7 @@ const deleteFaq = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
-    res.status(403).send({ message: "Incorrect product id" });
+    res.status(403).send({ message: "Incorrect FAQ id" });
     return;
   }
   try {

@@ -13,3 +13,8 @@ app.use("/api/v1", faqRouter);
 app.get("/testing", (req, res) => res.send("server testing ok"));
 
 app.listen(PORT, () => console.log(`app listening on ===>>> ${PORT}`));
+
+// Code to run before the server exits
+process.on("exit", (code) =>
+  console.log(`Server is about to exit with code ${code}`)
+);

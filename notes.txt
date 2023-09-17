@@ -1,1 +1,5 @@
 how to share types between frontend and backend 
+
+send _id as id in server through projection
+
+//should i include topic in embedding
