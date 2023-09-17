@@ -1,15 +1,14 @@
 import express from "express";
-import path from "path";
-import { productRouter } from "./routes/productRoutes.mjs";
+import { faqRouter } from "./routes/index.js";
 import { PORT } from "./config/index.mjs";
-import type { Express } from "express";
+import { middlewareRouter } from "./middleware/index.mjs";
 
-const __dirname = path.resolve();
-const app: Express = express();
+const app = express();
 
-app.use(express.json());
-app.use("/api/v1", productRouter);
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/api/v1", middlewareRouter);
+
+// app.use("/api/v1", authRouter);
+app.use("/api/v1", faqRouter);
 
 app.get("/testing", (req, res) => res.send("server testing ok"));
 

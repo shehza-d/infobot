@@ -2,9 +2,13 @@ import { IProduct } from "../types/index.js";
 import { db } from "../db/index.mjs";
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
+import { parameterMissingResponse } from "../utils/index.js";
 
-export const getAllProducts = async (req: Request, res: Response) => {
-  console.log("🚀 ~ file: productControllers.ts:7 ~ getAllProducts ~ req:", req)
+const getAllFaqs = async (req: Request, res: Response) => {
+  console.log(
+    "🚀 ~ file: productControllers.ts:7 ~ getAllProducts ~ req:",
+    req
+  );
   try {
     const products = db.collection<IProduct>("products");
     const data = await products.find<IProduct>({}).toArray();
@@ -20,7 +24,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
   }
 };
 
-export const getProduct = async (req: Request, res: Response) => {
+const getFaq = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -42,7 +46,7 @@ export const getProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const addProduct = async (req: Request, res: Response) => {
+const addFaq = async (req: Request, res: Response) => {
   const { name, description } = req.body;
   const price = Number(req.body.price);
 
@@ -55,7 +59,7 @@ export const addProduct = async (req: Request, res: Response) => {
     typeof name !== "string" ||
     typeof description !== "string"
   ) {
-    res.status(403).send(parameterMissing);
+    res.status(403).send(parameterMissingResponse);
     return;
   }
 
@@ -73,7 +77,7 @@ export const addProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const updateProduct = async (req: Request, res: Response) => {
+const updateFaq = async (req: Request, res: Response) => {
   const { id, name, description } = req.body;
   const price = Number(req.body.price);
 
@@ -83,7 +87,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     return;
   }
   if ((!name && !price && !description) || !id) {
-    res.status(403).send(parameterMissing);
+    res.status(403).send(parameterMissingResponse);
     return;
   }
 
@@ -120,7 +124,7 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+const deleteFaq = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
@@ -140,14 +144,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
     res.status(500).send({ message: err.message || "Unknown Error" });
   }
 };
+const deleteAllFaqs = async (req: Request, res: Response) => {};
 
-const parameterMissing = {
-  message: `Required parameter missing. At-least one parameter is required from name, price or description to complete update.`,
-  exampleRequest: {
-    id: "64b661974646eede5776adc6",
-    name: "Samsung",
-    price: 500,
-    description:
-      "Lorem Ipsum is simply dummy book. It has survived not only five centuries, software like Lorem Ipsum.",
-  },
-};
+export { getAllFaqs, getFaq, addFaq, updateFaq, deleteFaq, deleteAllFaqs };
