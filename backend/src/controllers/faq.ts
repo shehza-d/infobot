@@ -1,24 +1,25 @@
-import { IProduct } from "../types/index.js";
+import { IFaq } from "../types/index.js";
 import { db } from "../db/index.mjs";
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 import { parameterMissingResponse } from "../utils/index.js";
 
+const collection = "faqs";
+const faqsCollection = db.collection<IFaq>(collection);
+
 const getAllFaqs = async (req: Request, res: Response) => {
-  console.log(
-    "🚀 ~ file: productControllers.ts:7 ~ getAllProducts ~ req:",
-    req
-  );
   try {
-    const products = db.collection<IProduct>("products");
-    const data = await products.find<IProduct>({}).toArray();
+    const data = await faqsCollection
+      .find<IFaq>({})
+      .sort({ _id: -1 })
+      .toArray();
 
     if (!data.length) {
-      res.status(404).send({ message: "Products Not Found" });
+      res.status(404).send({ message: "Questions Not Found" });
       return;
     }
 
-    res.status(200).send({ message: "All Products fetched", data });
+    res.status(200).send({ message: "All Faqs fetched", data });
   } catch (err: any) {
     res.status(500).send({ message: err.message || "Unknown Error" });
   }
@@ -28,48 +29,51 @@ const getFaq = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   if (!ObjectId.isValid(id)) {
-    res.status(403).send({ message: "Incorrect product id" });
+    res.status(403).send({ message: "Incorrect FAQ id" });
     return;
   }
 
   try {
     const query = { _id: new ObjectId(id) };
 
-    const products = db.collection<IProduct>("products");
-    const data = await products.findOne<IProduct>(query);
+    const data = await faqsCollection.findOne<IFaq>(query);
 
-    if (!data) throw Error("Product Not Found!");
+    if (!data) throw Error("FAQ Not Found!");
 
-    res.send({ message: "Product found", data });
+    res.send({ message: "FAQ found", data });
   } catch (err: any) {
     res.status(500).send({ message: err.message || "Unknown Error" });
   }
 };
 
 const addFaq = async (req: Request, res: Response) => {
-  const { name, description } = req.body;
-  const price = Number(req.body.price);
+  const { question, answer, topic } = req.body;
 
   // Validation
   if (
-    !name ||
-    !price ||
-    !description ||
-    isNaN(price) ||
-    typeof name !== "string" ||
-    typeof description !== "string"
+    !question ||
+    !answer ||
+    !topic ||
+    typeof question !== "string" ||
+    typeof answer !== "string" ||
+    typeof topic !== "string"
   ) {
     res.status(403).send(parameterMissingResponse);
     return;
   }
 
   try {
-    const products = db.collection<IProduct>("products");
-    const data = await products.insertOne({ name, price, description });
+    const doc = {
+      question,
+      answer,
+      topic,
+      createdOn: new Date(),
+    };
+    const data = await faqsCollection.insertOne(doc);
 
     if (data.acknowledged)
       res.status(201).send({
-        message: "New Product Created!",
+        message: "New FAQ Created!",
         id: data.insertedId.toString(),
       });
   } catch (err: any) {
@@ -78,7 +82,7 @@ const addFaq = async (req: Request, res: Response) => {
 };
 
 const updateFaq = async (req: Request, res: Response) => {
-  const { id, name, description } = req.body;
+  const { id, answer, question, topic, name, description } = req.body;
   const price = Number(req.body.price);
 
   // Validation
@@ -104,17 +108,16 @@ const updateFaq = async (req: Request, res: Response) => {
     return;
   }
 
-  let product: Partial<IProduct> = {};
+  let product: Partial<IFaq> = {};
 
-  name && (product.name = name);
-  price && (product.price = price);
-  description && (product.description = description);
+  answer && (product.answer = answer);
+  question && (product.question = question);
+  topic && (product.topic = topic);
 
   try {
-    const products = db.collection<IProduct>("products");
     const filter = { _id: new ObjectId(id) };
     const updateDoc = { $set: product };
-    const data = await products.updateOne(filter, updateDoc);
+    const data = await faqsCollection.updateOne(filter, updateDoc);
 
     if (!data.matchedCount) throw Error("Product Not Found!");
 
@@ -132,9 +135,8 @@ const deleteFaq = async (req: Request, res: Response) => {
     return;
   }
   try {
-    const products = db.collection<IProduct>("products");
     const query = { _id: new ObjectId(id) };
-    const result = await products.deleteOne(query);
+    const result = await faqsCollection.deleteOne(query);
 
     if (!result.deletedCount)
       throw new Error("No documents matched the query. Deleted 0 documents.");

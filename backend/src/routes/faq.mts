@@ -10,10 +10,10 @@ import {
 
 const router = express.Router();
 
-router.get("/faqs", getAllFaqs);
+router.get("/faqs", getAllFaqs);// also accepts search query
 router.get("/faq/:id", getFaq);
 router.post("/faq", addFaq);
-router.put("/faq", updateFaq);
+router.patch("/faq/:id", updateFaq);
 router.delete("/faq/:id", deleteFaq);
 router.delete("/faqs", deleteAllFaqs);
 
