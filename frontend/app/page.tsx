@@ -1,9 +1,9 @@
-import Faq from "@/components/pages/Faq";
+import LandingPage from "@/components/layout/LandingPage";
 
-export default function Home() {
+export default function Page() {
   return (
-    <main className=" ">
-      <Faq />
-    </main>
+    <div>
+      <LandingPage />
+    </div>
   );
 }

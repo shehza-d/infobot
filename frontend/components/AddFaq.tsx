@@ -3,9 +3,8 @@ import axios from "axios";
 import { useFormik } from "formik";
 import { useState } from "react";
 import toast from "react-hot-toast";
-
-const baseUrl =
-  "https://faq-app-1-dot-learning-chatbot-393109.lm.r.appspot.com";
+import Input from "./layout/Input";
+import { serverUrl } from "@/utils";
 
 const Form = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,10 +29,11 @@ const Form = () => {
       answer: "",
     },
     onSubmit: ({ answer, question }) => {
+      if (!answer || !question) return;
       const postData = async () => {
         try {
           setIsLoading(true);
-          const res = await axios.post(`${baseUrl}/api/v1/faq`, {
+          const res = await axios.post(`${serverUrl}/api/v1/faq`, {
             question,
             answer,
             topic: "Science",
@@ -41,36 +41,36 @@ const Form = () => {
           console.log("🚀 ~ file: AddFaq.tsx:38 ~ postData ~ res:", res);
 
           toast.success("Post has been published!");
-        } catch (error) {
-          console.log(error);
+          formik.resetForm();
+        } catch (err: any) {
+          console.log("error", err);
+          toast.error(
+            err?.response?.data?.message || "Post has been published!"
+          );
         }
       };
       postData();
     },
   });
   return (
-    <form className="flex flex-col" onSubmit={formik.handleSubmit}>
-      <label htmlFor="question">Question</label>
-      <input
-        className="ring-2 ring-green-400"
+    <form className="flex flex-col gap-8" onSubmit={formik.handleSubmit}>
+      <Input
         id="question"
-        name="question"
-        type="question"
+        placeholder="Question"
         onChange={formik.handleChange}
         value={formik.values.question}
       />
-      <label htmlFor="answer">answer</label>
-      <input
-        className="ring-2 ring-green-400"
+      <Input
         id="answer"
-        name="answer"
-        type="answer"
+        placeholder="Answer"
         onChange={formik.handleChange}
         value={formik.values.answer}
       />
-
-      <button className="bg-green-300 my-6" type="submit">
-        Submit
+      <button
+        type="submit"
+        className="rounded-md bg-indigo-600 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      >
+        Add New Faq
       </button>
     </form>
   );
@@ -78,8 +78,8 @@ const Form = () => {
 
 export default function AddFaq() {
   return (
-    <div className="container mx-auto">
-      <h2>Add Faq</h2>
+    <div className="lg:w-[70%] mx-auto">
+      <h2 className="text-5xl text-blue-500 font-bold text-center">Add Faq</h2>
       <Form />
     </div>
   );

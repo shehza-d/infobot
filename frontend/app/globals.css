@@ -3,17 +3,29 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --primary-color: #f39761;
+  /* --accent-low-op: #30f71190; */
+  --secondary-color: #292647;
+  --acc-navy: #e38c5d;
 }
 
-@media (prefers-color-scheme: dark) {
-  /* :root {
+/* @media (prefers-color-scheme: dark) {
+  :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 0, 0, 0;
-  } */
+  }
+} */
+
+.S_Underline {
+  @apply after:absolute after:bottom-2 after:left-[2px] after:h-0.5 after:w-0 after:transition-all after:duration-[400ms] after:content-[''];
+}
+
+.bdr {
+  border: 2px solid red;
+}
+.bdr2 {
+  border: 2px solid green;
 }
 
 /* 

@@ -3,8 +3,7 @@ import AllFaqs from "../AllFaqs";
 
 export default function Faq() {
   return (
-    <div>
-      Faq
+    <div className="container mx-auto p-4">
       <AddFaq />
       <AllFaqs />
     </div>
