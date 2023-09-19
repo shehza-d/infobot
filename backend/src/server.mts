@@ -10,7 +10,7 @@ app.use("/api/v1", middlewareRouter);
 // app.use("/api/v1", authRouter);
 app.use("/api/v1", faqRouter);
 
-app.get("/testing", (req, res) => res.send("server testing ok"));
+app.get("/testing", (req, res) => res.send("faq server testing"));
 
 app.listen(PORT, () => console.log(`app listening on ===>>> ${PORT}`));
 

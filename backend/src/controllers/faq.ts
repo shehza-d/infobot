@@ -1,10 +1,9 @@
 import { IFaq } from "../types/index.js";
 import { db } from "../db/index.mjs";
-import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
+import { getEmbeddings, cleanText } from "../helpers/index.js";
 import { parameterMissingResponse } from "../utils/index.js";
-import { getEmbeddings } from "../helpers/getEmbeddings.js";
-import { cleanText } from "../helpers/textCleaning.js";
+import type { Request, Response } from "express";
 
 const collection = "faqs";
 const faqsCollection = db.collection<IFaq>(collection);
