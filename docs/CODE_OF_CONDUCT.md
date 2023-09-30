@@ -1,5 +1,7 @@
 # Code of Conduct
 
+<!-- https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/adding-a-code-of-conduct-to-your-project -->
+
 Expanding your FAQ project with additional features can enhance its usefulness and user experience. Here are some features you can consider adding:
 
 1. **Chatbot with FAQ Integration**:
