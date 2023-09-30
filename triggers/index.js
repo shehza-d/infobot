@@ -1,5 +1,3 @@
-// https://www.mongodb.com/library/vector-search/semantic-search-mongodb-using-atlas-vector-search
-
 exports = async function (changeEvent) {
   // Get the full document from the change event.
   const doc = changeEvent.fullDocument;

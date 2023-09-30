@@ -1,5 +1,8 @@
 how to share types between frontend and backend 
 
+### [Server Link](https://faq-app-1-dot-learning-chatbot-393109.lm.r.appspot.com/testing)
+
+
 send _id as id in server through projection
 
 //should i include topic in embedding
