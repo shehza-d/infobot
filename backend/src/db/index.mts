@@ -31,14 +31,14 @@ async function run() {
 }
 run().catch(console.dir);
 
-process.on("exit", async (code) => {
+process.on("SIGINT", async (code) => {
   // Code to run before the server exits
   console.log(`Server is about to exit with code ${code}`);
 
-  // Your cleanup code here
-  await client.close();
-
+  // Cleanup code
   // For example, you can close database connections, write logs, etc.
+  await client.close();
+  // process.exit(0);
 });
 
 export { database as db };
